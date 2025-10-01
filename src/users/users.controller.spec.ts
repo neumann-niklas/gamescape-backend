@@ -20,6 +20,7 @@ describe('UsersController', () => {
       findAll: jest.fn().mockResolvedValue(mockUsers),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null)),
       update: jest.fn().mockImplementation((id: string, updateUserDto: UpdateUserDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserDto })),
+      updateEmail: jest.fn().mockImplementation((id: string, email: string) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), email: email })),
       remove: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id)))
     };
 
@@ -68,12 +69,23 @@ describe('UsersController', () => {
 
   describe('update', () => {
     it('should update an user by id', async () => {
-      const updateUserDto: UpdateUserDto = { email: 'james.doe@gamescape.de' };
+      const updateUserDto: UpdateUserDto = { firstName: 'James' };
 
       const user: User = await usersController.update(mockUsers[0].id, updateUserDto);
 
       expect(usersService.update).toHaveBeenCalledWith(mockUsers[0].id, updateUserDto);
       expect(user).toEqual({ ...mockUsers[0], ...updateUserDto });
+    });
+  });
+
+  describe('updateEmail', () => {
+    it('should update an user email by id', async () => {
+      const email: string = 'james.doe@gamescape.de';
+
+      const user: User = await usersController.updateEmail(mockUsers[0].id, email);
+
+      expect(usersService.updateEmail).toHaveBeenCalledWith(mockUsers[0].id, email);
+      expect(user).toEqual({ ...mockUsers[0], email: email });
     });
   });
 

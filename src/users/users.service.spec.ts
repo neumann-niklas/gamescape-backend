@@ -23,7 +23,7 @@ describe('UsersService', () => {
       remove: jest.fn().mockImplementation((user: User) => Promise.resolve(user)),
       existsBy: jest.fn().mockImplementation(({ email }) => Promise.resolve(mockUsers.some((user: User) => user.email === email))),
       find: jest.fn().mockResolvedValue(mockUsers),
-      findOne: jest.fn().mockImplementation(({ where: { id } }) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null))
+      findOne: jest.fn().mockImplementation(({ where: { id, email } }) => Promise.resolve(mockUsers.find((user: User) => user.id === id || user.email === email) || null))
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -84,28 +84,60 @@ describe('UsersService', () => {
     });
   });
 
+  describe('findOneByEmail', () => {
+    it('should return an user by email', async () => {
+      const user: User = await usersService.findOneByEmail(mockUsers[0].email);
+
+      expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { email: mockUsers[0].email } });
+      expect(user).toEqual(mockUsers[0]);
+    });
+
+    it('should throw a NotFoundException if an user is not found by email', async () => {
+      await expect(usersService.findOneByEmail('james.doe@gamescape.de')).rejects.toThrow(NotFoundException);
+      expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { email: 'james.doe@gamescape.de' } });
+    });
+  });
+
   describe('update', () => {
-    const updateUserDto: UpdateUserDto = { email: 'james.doe@gamescape.de' };
+    const updateUserDto: UpdateUserDto = { firstName: 'James' };
 
     it('should update an user by id', async () => {
       const user: User = await usersService.update(mockUsers[0].id, updateUserDto);
 
-      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateUserDto.email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
       expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateUserDto });
       expect(user).toEqual({ ...mockUsers[0], ...updateUserDto });
     });
 
+    it('should throw a NotFoundException if an user is not found by id', async () => {
+      await expect(usersService.update('2', updateUserDto)).rejects.toThrow(NotFoundException);
+      expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: '2' } });
+      expect(usersRepository.save).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('updateEmail', () => {
+    const email: string = 'james.doe@gamescape.de';
+
+    it('should update an user email by id', async () => {
+      const user: User = await usersService.updateEmail(mockUsers[0].id, email);
+
+      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: email });
+      expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
+      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], email: email });
+      expect(user).toEqual({ ...mockUsers[0], email: email });
+    });
+
     it('should throw a ConflictException when an user with this email already exists', async () => {
-      await expect(usersService.update(mockUsers[0].id, { email: mockUsers[0].email })).rejects.toThrow(ConflictException);
+      await expect(usersService.updateEmail(mockUsers[0].id, mockUsers[0].email)).rejects.toThrow(ConflictException);
       expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: mockUsers[0].email });
       expect(usersRepository.findOne).not.toHaveBeenCalled();
       expect(usersRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if an user is not found by id', async () => {
-      await expect(usersService.update('2', updateUserDto)).rejects.toThrow(NotFoundException);
-      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateUserDto.email });
+      await expect(usersService.updateEmail('2', email)).rejects.toThrow(NotFoundException);
+      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: '2' } });
       expect(usersRepository.save).not.toHaveBeenCalled();
     });

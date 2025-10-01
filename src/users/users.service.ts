@@ -27,14 +27,30 @@ export class UsersService {
         return user;
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-        if (await this.usersRepository.existsBy({ email: updateUserDto.email })) throw new ConflictException('User with this email already exists!');
+    async findOneByEmail(email: string): Promise<User> {
+        const user: User | null = await this.usersRepository.findOne({ where: { email: email } });
 
+        if (!user) throw new NotFoundException('User not found!');
+
+        return user;
+    }
+
+    async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         const user: User | null = await this.usersRepository.findOne({ where: { id: id } });
 
         if (!user) throw new NotFoundException('User not found!');
 
         return await this.usersRepository.save({ ...user, ...updateUserDto });
+    }
+
+    async updateEmail(id: string, email: string): Promise<User> {
+        if (await this.usersRepository.existsBy({ email: email })) throw new ConflictException('User with this email already exists!');
+
+        const user: User | null = await this.usersRepository.findOne({ where: { id: id } });
+
+        if (!user) throw new NotFoundException('User not found!');
+
+        return await this.usersRepository.save({ ...user, email: email });
     }
 
     async remove(id: string): Promise<User> {
