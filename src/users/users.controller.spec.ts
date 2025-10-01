@@ -1,0 +1,88 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+
+const mockUsers: User[] = [
+  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe' },
+  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe' }
+];
+
+describe('UsersController', () => {
+  let usersController: UsersController;
+  let usersService: UsersService;
+
+  beforeEach(async () => {
+    const mockUsersService = {
+      create: jest.fn().mockImplementation((createUserDto: CreateUserDto) => { return { id: '2', ...createUserDto } }),
+      findAll: jest.fn().mockResolvedValue(mockUsers),
+      findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null)),
+      update: jest.fn().mockImplementation((id: string, updateUserDto: UpdateUserDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserDto })),
+      remove: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id)))
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [{ provide: UsersService, useValue: mockUsersService }]
+    }).compile();
+
+    usersController = module.get<UsersController>(UsersController);
+    usersService = module.get<UsersService>(UsersService);
+  });
+
+  it('should be defined', () => {
+    expect(usersController).toBeDefined();
+    expect(usersService).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create a new user', async () => {
+      const createUserDto: CreateUserDto = { email: 'james.doe@gamescape.de', firstName: 'James', lastName: 'Doe' };
+
+      const user: User = await usersController.create(createUserDto);
+
+      expect(usersService.create).toHaveBeenCalledWith(createUserDto);
+      expect(user).toEqual({ id: '2', ...createUserDto });
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of users', async () => {
+      const users: User[] = await usersController.findAll();
+
+      expect(usersService.findAll).toHaveBeenCalled();
+      expect(users).toEqual(mockUsers);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return an user by id', async () => {
+      const user: User = await usersController.findOne(mockUsers[0].id);
+
+      expect(usersService.findOne).toHaveBeenCalledWith(mockUsers[0].id);
+      expect(user).toEqual(mockUsers[0]);
+    });
+  });
+
+  describe('update', () => {
+    it('should update an user by id', async () => {
+      const updateUserDto: UpdateUserDto = { email: 'james.doe@gamescape.de' };
+
+      const user: User = await usersController.update(mockUsers[0].id, updateUserDto);
+
+      expect(usersService.update).toHaveBeenCalledWith(mockUsers[0].id, updateUserDto);
+      expect(user).toEqual({ ...mockUsers[0], ...updateUserDto });
+    });
+  });
+
+  describe('remove', () => {
+    it('should remove an user by id', async () => {
+      const user: User = await usersController.remove(mockUsers[0].id);
+
+      expect(usersService.remove).toHaveBeenCalledWith(mockUsers[0].id);
+      expect(user).toEqual(mockUsers[0]);
+    });
+  });
+});
