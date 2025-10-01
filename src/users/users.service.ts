@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -9,10 +9,10 @@ import { User } from './entities/user.entity';
 export class UsersService {
     constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) { }
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
-        if (await this.usersRepository.existsBy({ email: createUserDto.email })) throw new ConflictException('User with this email already exists!');
+    async create(signUpDto: SignUpDto): Promise<User> {
+        if (await this.usersRepository.existsBy({ email: signUpDto.email })) throw new ConflictException('User with this email already exists!');
 
-        return this.usersRepository.save(this.usersRepository.create(createUserDto));
+        return await this.usersRepository.save(this.usersRepository.create(signUpDto));
     }
 
     async findAll(): Promise<User[]> {
@@ -51,6 +51,14 @@ export class UsersService {
         if (!user) throw new NotFoundException('User not found!');
 
         return await this.usersRepository.save({ ...user, email: email });
+    }
+
+    async updatePassword(id: string, password: string): Promise<User> {
+        const user: User | null = await this.usersRepository.findOne({ where: { id: id } });
+
+        if (!user) throw new NotFoundException('User not found!');
+
+        return await this.usersRepository.save({ ...user, password: password });
     }
 
     async remove(id: string): Promise<User> {

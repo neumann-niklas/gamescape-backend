@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -13,4 +14,8 @@ export class User {
 
     @Column({ name: 'last_name' })
     readonly lastName: string;
+
+    @Exclude()
+    @Column()
+    readonly password?: string;
 }
