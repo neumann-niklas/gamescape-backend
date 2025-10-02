@@ -17,5 +17,5 @@ export class User {
 
     @Exclude()
     @Column()
-    readonly password?: string;
+    readonly password: string;
 }

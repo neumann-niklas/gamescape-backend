@@ -1,23 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from 'src/users/entities/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LogInDto } from './dto/log-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 
-const mockUsers: User[] = [
-  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' },
-  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe', password: '1234' }
-];
+const mockAccessToken: string = 'accessToken';
 
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const mockAuthService: Partial<AuthService> = {
-      signUp: jest.fn().mockImplementation((signUpDto: SignUpDto) => Promise.resolve({ id: '2', ...signUpDto })),
-      logIn: jest.fn().mockImplementation((logInDto: LogInDto) => Promise.resolve(mockUsers.find((user: User) => user.email === logInDto.email)))
+      signUp: jest.fn().mockResolvedValue(mockAccessToken),
+      logIn: jest.fn().mockResolvedValue(mockAccessToken)
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -36,23 +34,23 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should sign up a new user', async () => {
-      const signUpDto: SignUpDto = { email: 'james.doe@gamescape.de', firstName: 'James', lastName: 'Doe', password: '1234' };
+      const signUpDto: SignUpDto = { email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' };
 
-      const user: User = await authController.signUp(signUpDto);
+      const accessToken: string = await authController.signUp(signUpDto);
 
       expect(authService.signUp).toHaveBeenCalledWith(signUpDto);
-      expect(user).toEqual({ id: '2', ...signUpDto });
+      expect(accessToken).toEqual(mockAccessToken);
     });
   });
 
   describe('logIn', () => {
     it('should log in an existing user', async () => {
-      const logInDto: LogInDto = { email: mockUsers[0].email, password: mockUsers[0].password! };
+      const logInDto: LogInDto = { email: 'john.doe@gamescape.de', password: '1234' };
 
-      const user: User = await authController.logIn(logInDto);
+      const accessToken: string = await authController.logIn(logInDto);
 
       expect(authService.logIn).toHaveBeenCalledWith(logInDto);
-      expect(user).toEqual(mockUsers[0]);
+      expect(accessToken).toEqual(mockAccessToken);
     });
   });
 });

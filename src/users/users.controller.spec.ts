@@ -5,8 +5,8 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 const mockUsers: User[] = [
-  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe' },
-  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe' }
+  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' },
+  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe', password: '1234' }
 ];
 
 describe('UsersController', () => {
@@ -14,7 +14,9 @@ describe('UsersController', () => {
   let usersService: UsersService;
 
   beforeEach(async () => {
-    const mockUsersService = {
+    jest.clearAllMocks();
+
+    const mockUsersService: Partial<UsersService> = {
       findAll: jest.fn().mockResolvedValue(mockUsers),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null)),
       update: jest.fn().mockImplementation((id: string, updateUserDto: UpdateUserDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserDto })),

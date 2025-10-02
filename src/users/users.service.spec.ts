@@ -8,8 +8,8 @@ import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
 const mockUsers: User[] = [
-  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe' },
-  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe' }
+  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' },
+  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe', password: '1234' }
 ];
 
 describe('UsersService', () => {
@@ -17,7 +17,9 @@ describe('UsersService', () => {
   let usersRepository: Repository<User>;
 
   beforeEach(async () => {
-    const mockUsersRepository = {
+    jest.clearAllMocks();
+
+    const mockUsersRepository: Partial<Repository<User>> = {
       create: jest.fn().mockImplementation((signUpDto: SignUpDto) => { return { id: '2', ...signUpDto } }),
       save: jest.fn().mockImplementation((user: User) => Promise.resolve(user)),
       remove: jest.fn().mockImplementation((user: User) => Promise.resolve(user)),
