@@ -1,21 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { mockUsers } from 'test/mocks/user.mock';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-
-const mockUsers: User[] = [
-  { id: '0', email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' },
-  { id: '1', email: 'jane.doe@gamescape.de', firstName: 'Jane', lastName: 'Doe', password: '1234' }
-];
 
 describe('UsersController', () => {
   let usersController: UsersController;
   let usersService: UsersService;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-
     const mockUsersService: Partial<UsersService> = {
       findAll: jest.fn().mockResolvedValue(mockUsers),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null)),
@@ -81,7 +75,7 @@ describe('UsersController', () => {
 
   describe('updatePassword', () => {
     it('should update an user password by id', async () => {
-      const password: string = '1234';
+      const password: string = 'newPassword';
 
       const user: User = await usersController.updatePassword(mockUsers[0].id, password);
 

@@ -11,8 +11,6 @@ describe('AuthController', () => {
   let authService: AuthService;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-
     const mockAuthService: Partial<AuthService> = {
       signUp: jest.fn().mockResolvedValue(mockAccessToken),
       logIn: jest.fn().mockResolvedValue(mockAccessToken)
@@ -34,7 +32,7 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should sign up a new user', async () => {
-      const signUpDto: SignUpDto = { email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: '1234' };
+      const signUpDto: SignUpDto = { email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: 'password' };
 
       const accessToken: string = await authController.signUp(signUpDto);
 
@@ -45,7 +43,7 @@ describe('AuthController', () => {
 
   describe('logIn', () => {
     it('should log in an existing user', async () => {
-      const logInDto: LogInDto = { email: 'john.doe@gamescape.de', password: '1234' };
+      const logInDto: LogInDto = { email: 'john.doe@gamescape.de', password: 'password' };
 
       const accessToken: string = await authController.logIn(logInDto);
 
