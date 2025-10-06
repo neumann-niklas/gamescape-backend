@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockUsers } from 'test/mocks/user.mock';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserEmailDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -14,8 +14,8 @@ describe('UsersController', () => {
       findAll: jest.fn().mockResolvedValue(mockUsers),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id) || null)),
       update: jest.fn().mockImplementation((id: string, updateUserDto: UpdateUserDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserDto })),
-      updateEmail: jest.fn().mockImplementation((id: string, email: string) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), email: email })),
-      updatePassword: jest.fn().mockImplementation((id: string, password: string) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), password: password })),
+      updateEmail: jest.fn().mockImplementation((id: string, updateUserEmailDto: UpdateUserEmailDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserEmailDto })),
+      updatePassword: jest.fn().mockImplementation((id: string, updateUserPasswordDto: UpdateUserPasswordDto) => Promise.resolve({ ...mockUsers.find((user: User) => user.id === id), ...updateUserPasswordDto })),
       remove: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id)))
     };
 
@@ -64,23 +64,23 @@ describe('UsersController', () => {
 
   describe('updateEmail', () => {
     it('should update an user email by id', async () => {
-      const email: string = 'james.doe@gamescape.de';
+      const updateUserEmailDto: UpdateUserEmailDto = { email: 'james.doe@gamescape.de' };
 
-      const user: User = await usersController.updateEmail(mockUsers[0].id, email);
+      const user: User = await usersController.updateEmail(mockUsers[0].id, updateUserEmailDto);
 
-      expect(usersService.updateEmail).toHaveBeenCalledWith(mockUsers[0].id, email);
-      expect(user).toEqual({ ...mockUsers[0], email: email });
+      expect(usersService.updateEmail).toHaveBeenCalledWith(mockUsers[0].id, updateUserEmailDto);
+      expect(user).toEqual({ ...mockUsers[0], ...updateUserEmailDto });
     });
   });
 
   describe('updatePassword', () => {
     it('should update an user password by id', async () => {
-      const password: string = 'newPassword';
+      const updateUserPasswordDto: UpdateUserPasswordDto = { password: 'newPassword' };
 
-      const user: User = await usersController.updatePassword(mockUsers[0].id, password);
+      const user: User = await usersController.updatePassword(mockUsers[0].id, updateUserPasswordDto);
 
-      expect(usersService.updatePassword).toHaveBeenCalledWith(mockUsers[0].id, password);
-      expect(user).toEqual({ ...mockUsers[0], password: password });
+      expect(usersService.updatePassword).toHaveBeenCalledWith(mockUsers[0].id, updateUserPasswordDto);
+      expect(user).toEqual({ ...mockUsers[0], ...updateUserPasswordDto });
     });
   });
 
