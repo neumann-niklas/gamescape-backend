@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { mockUsers } from 'test/mocks/user.mock';
 import { Repository } from 'typeorm';
@@ -33,11 +34,6 @@ describe('UsersService', () => {
 
     usersService = module.get<UsersService>(UsersService);
     usersRepository = module.get<Repository<User>>(getRepositoryToken(User));
-  });
-
-  it('should be defined', () => {
-    expect(usersService).toBeDefined();
-    expect(usersRepository).toBeDefined();
   });
 
   describe('create', () => {
@@ -107,8 +103,15 @@ describe('UsersService', () => {
       const user: User = await usersService.update(mockUsers[0].id, updateUserDto);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateUserDto });
-      expect(user).toEqual({ ...mockUsers[0], ...updateUserDto });
+      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserDto }));
+      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserDto }));
+    });
+
+    it('should throw a ConflictException if the update body is empty', async () => {
+      await expect(usersService.update(mockUsers[0].id, {})).rejects.toThrow(ConflictException);
+
+      expect(usersRepository.findOne).not.toHaveBeenCalled();
+      expect(usersRepository.save).not.toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if an user is not found by id', async () => {
@@ -127,8 +130,8 @@ describe('UsersService', () => {
 
       expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateUserEmailDto.email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateUserEmailDto });
-      expect(user).toEqual({ ...mockUsers[0], ...updateUserEmailDto });
+      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserEmailDto }));
+      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserEmailDto }));
     });
 
     it('should throw a ConflictException when an user with this email already exists', async () => {
@@ -155,8 +158,8 @@ describe('UsersService', () => {
       const user: User = await usersService.updatePassword(mockUsers[0].id, updateUserPasswordDto);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateUserPasswordDto });
-      expect(user).toEqual({ ...mockUsers[0], ...updateUserPasswordDto });
+      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserPasswordDto }));
+      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserPasswordDto }));
     });
 
     it('should throw a NotFoundException if an user is not found by id', async () => {

@@ -28,11 +28,6 @@ describe('UsersController', () => {
     usersService = module.get<UsersService>(UsersService);
   });
 
-  it('should be defined', () => {
-    expect(usersController).toBeDefined();
-    expect(usersService).toBeDefined();
-  });
-
   describe('findAll', () => {
     it('should return an array of users', async () => {
       const users: User[] = await usersController.findAll();

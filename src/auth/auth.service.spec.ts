@@ -43,12 +43,6 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(jwtService).toBeDefined();
-    expect(usersService).toBeDefined();
-    expect(authService).toBeDefined();
-  });
-
   describe('signup', () => {
     it('should sign up a new user', async () => {
       const signUpDto: SignUpDto = { email: 'james.doe@gamescape.de', firstName: 'James', lastName: 'Doe', password: 'password' };

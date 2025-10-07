@@ -25,11 +25,6 @@ describe('AuthController', () => {
     authService = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(authController).toBeDefined();
-    expect(authService).toBeDefined();
-  });
-
   describe('signUp', () => {
     it('should sign up a new user', async () => {
       const signUpDto: SignUpDto = { email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: 'password' };
