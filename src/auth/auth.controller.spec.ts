@@ -26,8 +26,8 @@ describe('AuthController', () => {
       remove: jest.fn().mockImplementation((id: string) => Promise.resolve(mockUsers.find((user: User) => user.id === id)))
     };
     const mockAuthService: Partial<AuthService> = {
-      signUp: jest.fn().mockResolvedValue(mockAccessToken),
-      logIn: jest.fn().mockResolvedValue(mockAccessToken)
+      signUp: jest.fn().mockResolvedValue({ accessToken: mockAccessToken }),
+      logIn: jest.fn().mockResolvedValue({ accessToken: mockAccessToken })
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -48,7 +48,7 @@ describe('AuthController', () => {
     it('should sign up a new user', async () => {
       const signUpDto: SignUpDto = { email: 'john.doe@gamescape.de', firstName: 'John', lastName: 'Doe', password: 'password' };
 
-      const accessToken: string = await authController.signUp(signUpDto);
+      const { accessToken }: { readonly accessToken: string } = await authController.signUp(signUpDto);
 
       expect(authService.signUp).toHaveBeenCalledWith(signUpDto);
       expect(accessToken).toEqual(mockAccessToken);
@@ -59,7 +59,7 @@ describe('AuthController', () => {
     it('should log in an existing user', async () => {
       const logInDto: LogInDto = { email: 'john.doe@gamescape.de', password: 'password' };
 
-      const accessToken: string = await authController.logIn(logInDto);
+      const { accessToken }: { readonly accessToken: string } = await authController.logIn(logInDto);
 
       expect(authService.logIn).toHaveBeenCalledWith(logInDto);
       expect(accessToken).toEqual(mockAccessToken);

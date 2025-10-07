@@ -47,7 +47,7 @@ describe('AuthService', () => {
     it('should sign up a new user', async () => {
       const signUpDto: SignUpDto = { email: 'james.doe@gamescape.de', firstName: 'James', lastName: 'Doe', password: 'password' };
 
-      const accessToken: string = await authService.signUp(signUpDto);
+      const { accessToken }: { readonly accessToken: string } = await authService.signUp(signUpDto);
 
       expect(usersService.create).toHaveBeenCalled();
       expect(jwtService.signAsync).toHaveBeenCalled();
@@ -59,7 +59,7 @@ describe('AuthService', () => {
     it('should log in an existing user', async () => {
       const logInDto: LogInDto = { email: mockUsers[0].email, password: mockUsers[0].password };
 
-      const accessToken: string = await authService.logIn(logInDto);
+      const { accessToken }: { readonly accessToken: string } = await authService.logIn(logInDto);
 
       expect(usersService.findOneByEmail).toHaveBeenCalledWith(logInDto.email);
       expect(accessToken).toEqual(mockAccessToken);

@@ -13,20 +13,20 @@ export class AuthService {
     private readonly usersService: UsersService
   ) { }
 
-  async signUp(signUpDto: SignUpDto): Promise<string> {
+  async signUp(signUpDto: SignUpDto): Promise<{ readonly accessToken: string }> {
     const user: User = await this.usersService.create({
       ...signUpDto,
       password: await hash(signUpDto.password, await genSalt())
     });
 
-    return await this.jwtService.signAsync({ sub: user.id });
+    return { accessToken: await this.jwtService.signAsync({ sub: user.id }) };
   }
 
-  async logIn(logInDto: LogInDto): Promise<string> {
+  async logIn(logInDto: LogInDto): Promise<{ readonly accessToken: string }> {
     const user: User = await this.usersService.findOneByEmail(logInDto.email);
 
     if (!await compare(logInDto.password, user.password)) throw new UnauthorizedException('Invalid password!');
 
-    return await this.jwtService.signAsync({ sub: user.id });
+    return { accessToken: await this.jwtService.signAsync({ sub: user.id }) };
   }
 }

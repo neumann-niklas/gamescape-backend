@@ -15,13 +15,13 @@ export class AuthController {
   ) { }
 
   @Post('signup')
-  async signUp(@Body() signUpDto: SignUpDto): Promise<string> {
+  async signUp(@Body() signUpDto: SignUpDto): Promise<{ readonly accessToken: string }> {
     return await this.authService.signUp(signUpDto);
   }
 
   @Post('login')
   @HttpCode(200)
-  async logIn(@Body() logInDto: LogInDto): Promise<string> {
+  async logIn(@Body() logInDto: LogInDto): Promise<{ readonly accessToken: string }> {
     return await this.authService.logIn(logInDto);
   }
 
