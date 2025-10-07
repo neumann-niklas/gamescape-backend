@@ -4,7 +4,7 @@ import { genSalt, hash } from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { Repository } from 'typeorm';
-import { UpdateUserDto, UpdateUserEmailDto, UpdateUserPasswordDto } from './dto/update-user.dto';
+import { UpdateEmailDto, UpdatePasswordDto, UpdateUserDto } from '../auth/dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -49,22 +49,22 @@ export class UsersService {
         return await this.usersRepository.save(plainToInstance(User, { ...user, ...updateUserDto }));
     }
 
-    async updateEmail(id: string, updateUserEmailDto: UpdateUserEmailDto): Promise<User> {
-        if (await this.usersRepository.existsBy({ email: updateUserEmailDto.email })) throw new ConflictException('User with this email already exists!');
+    async updateEmail(id: string, updateEmailDto: UpdateEmailDto): Promise<User> {
+        if (await this.usersRepository.existsBy({ email: updateEmailDto.email })) throw new ConflictException('User with this email already exists!');
 
         const user: User | null = await this.usersRepository.findOne({ where: { id: id } });
 
         if (!user) throw new NotFoundException('User not found!');
 
-        return await this.usersRepository.save(plainToInstance(User, { ...user, ...updateUserEmailDto }));
+        return await this.usersRepository.save(plainToInstance(User, { ...user, ...updateEmailDto }));
     }
 
-    async updatePassword(id: string, updateUserPasswordDto: UpdateUserPasswordDto): Promise<User> {
+    async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): Promise<User> {
         const user: User | null = await this.usersRepository.findOne({ where: { id: id } });
 
         if (!user) throw new NotFoundException('User not found!');
 
-        return await this.usersRepository.save(plainToInstance(User, { ...user, password: await hash(updateUserPasswordDto.password, await genSalt()) }));
+        return await this.usersRepository.save(plainToInstance(User, { ...user, password: await hash(updatePasswordDto.password, await genSalt()) }));
     }
 
     async remove(id: string): Promise<User> {

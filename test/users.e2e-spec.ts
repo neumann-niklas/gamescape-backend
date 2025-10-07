@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AppModule } from "src/app.module";
-import { UpdateUserDto } from "src/users/dto/update-user.dto";
+import { UpdateUserDto } from "src/auth/dto/update-user.dto";
 import { User } from "src/users/entities/user.entity";
 import { UsersController } from "src/users/users.controller";
 import { UsersService } from "src/users/users.service";

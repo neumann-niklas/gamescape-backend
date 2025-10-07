@@ -5,7 +5,7 @@ import { plainToInstance } from 'class-transformer';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
 import { mockUsers } from 'test/mocks/user.mock';
 import { Repository } from 'typeorm';
-import { UpdateUserDto, UpdateUserEmailDto, UpdateUserPasswordDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateEmailDto, UpdatePasswordDto } from '../auth/dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -123,15 +123,15 @@ describe('UsersService', () => {
   });
 
   describe('updateEmail', () => {
-    const updateUserEmailDto: UpdateUserEmailDto = { email: 'james.doe@gamescape.de' };
+    const updateEmailDto: UpdateEmailDto = { email: 'james.doe@gamescape.de' };
 
     it('should update an user email by id', async () => {
-      const user: User = await usersService.updateEmail(mockUsers[0].id, updateUserEmailDto);
+      const user: User = await usersService.updateEmail(mockUsers[0].id, updateEmailDto);
 
-      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateUserEmailDto.email });
+      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateEmailDto.email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserEmailDto }));
-      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserEmailDto }));
+      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateEmailDto }));
+      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateEmailDto }));
     });
 
     it('should throw a ConflictException when an user with this email already exists', async () => {
@@ -143,27 +143,27 @@ describe('UsersService', () => {
     });
 
     it('should throw a NotFoundException if an user is not found by id', async () => {
-      await expect(usersService.updateEmail('2', updateUserEmailDto)).rejects.toThrow(NotFoundException);
+      await expect(usersService.updateEmail('2', updateEmailDto)).rejects.toThrow(NotFoundException);
 
-      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateUserEmailDto.email });
+      expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateEmailDto.email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: '2' } });
       expect(usersRepository.save).not.toHaveBeenCalled();
     });
   });
 
   describe('updatePassword', () => {
-    const updateUserPasswordDto: UpdateUserPasswordDto = { password: 'newPassword' };
+    const updatePasswordDto: UpdatePasswordDto = { password: 'newPassword' };
 
     it('should update an user password by id', async () => {
-      const user: User = await usersService.updatePassword(mockUsers[0].id, updateUserPasswordDto);
+      const user: User = await usersService.updatePassword(mockUsers[0].id, updatePasswordDto);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserPasswordDto }));
-      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserPasswordDto }));
+      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updatePasswordDto }));
+      expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updatePasswordDto }));
     });
 
     it('should throw a NotFoundException if an user is not found by id', async () => {
-      await expect(usersService.updatePassword('2', updateUserPasswordDto)).rejects.toThrow(NotFoundException);
+      await expect(usersService.updatePassword('2', updatePasswordDto)).rejects.toThrow(NotFoundException);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: '2' } });
       expect(usersRepository.save).not.toHaveBeenCalled();

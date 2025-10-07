@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch } from '@nestjs/common';
-import { UpdateUserDto, UpdateUserEmailDto, UpdateUserPasswordDto } from './dto/update-user.dto';
+import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -15,25 +14,5 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
     return await this.usersService.findOne(id);
-  }
-
-  @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.usersService.update(id, updateUserDto);
-  }
-
-  @Patch(':id/email')
-  async updateEmail(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserEmailDto: UpdateUserEmailDto): Promise<User> {
-    return await this.usersService.updateEmail(id, updateUserEmailDto);
-  }
-
-  @Patch(':id/password')
-  async updatePassword(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserPasswordDto: UpdateUserPasswordDto): Promise<User> {
-    return await this.usersService.updatePassword(id, updateUserPasswordDto);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
-    return await this.usersService.remove(id);
   }
 }
