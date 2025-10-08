@@ -46,7 +46,7 @@ export class UsersService {
 
         if (!user) throw new NotFoundException('User not found!');
 
-        return await this.usersRepository.save(plainToInstance(User, { ...user, ...updateUserDto }));
+        return plainToInstance(User, await this.usersRepository.save({ ...user, ...updateUserDto }));
     }
 
     async updateEmail(id: string, updateEmailDto: UpdateEmailDto): Promise<User> {
@@ -56,7 +56,7 @@ export class UsersService {
 
         if (!user) throw new NotFoundException('User not found!');
 
-        return await this.usersRepository.save(plainToInstance(User, { ...user, ...updateEmailDto }));
+        return plainToInstance(User, await this.usersRepository.save({ ...user, ...updateEmailDto }));
     }
 
     async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): Promise<User> {
@@ -64,7 +64,7 @@ export class UsersService {
 
         if (!user) throw new NotFoundException('User not found!');
 
-        return await this.usersRepository.save(plainToInstance(User, { ...user, password: await hash(updatePasswordDto.password, await genSalt()) }));
+        return plainToInstance(User, await this.usersRepository.save({ ...user, password: await hash(updatePasswordDto.password, await genSalt()) }));
     }
 
     async remove(id: string): Promise<User> {

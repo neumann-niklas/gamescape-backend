@@ -3,9 +3,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
+import { UpdateEmailDto, UpdatePasswordDto, UpdateUserDto } from 'src/auth/dto/update-user.dto';
 import { mockUsers } from 'test/mocks/user.mock';
 import { Repository } from 'typeorm';
-import { UpdateUserDto, UpdateEmailDto, UpdatePasswordDto } from '../auth/dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -103,7 +103,7 @@ describe('UsersService', () => {
       const user: User = await usersService.update(mockUsers[0].id, updateUserDto);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateUserDto }));
+      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateUserDto });
       expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateUserDto }));
     });
 
@@ -130,7 +130,7 @@ describe('UsersService', () => {
 
       expect(usersRepository.existsBy).toHaveBeenCalledWith({ email: updateEmailDto.email });
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updateEmailDto }));
+      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updateEmailDto });
       expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updateEmailDto }));
     });
 
@@ -158,7 +158,7 @@ describe('UsersService', () => {
       const user: User = await usersService.updatePassword(mockUsers[0].id, updatePasswordDto);
 
       expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: mockUsers[0].id } });
-      expect(usersRepository.save).toHaveBeenCalledWith(plainToInstance(User, { ...mockUsers[0], ...updatePasswordDto }));
+      expect(usersRepository.save).toHaveBeenCalledWith({ ...mockUsers[0], ...updatePasswordDto });
       expect(user).toEqual(plainToInstance(User, { ...mockUsers[0], ...updatePasswordDto }));
     });
 
