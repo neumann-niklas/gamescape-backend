@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post } from '@nestjs/common';
 import { UpdateEmailDto, UpdatePasswordDto, UpdateUserDto } from 'src/auth/dto/update-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { Public } from './decorators/public.decorator';
+import { UserId } from './decorators/user-id.decorator';
 import { LogInDto } from './dto/log-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 
@@ -14,44 +15,41 @@ export class AuthController {
     private readonly usersService: UsersService
   ) { }
 
+  @Public()
   @Post('signup')
   async signUp(@Body() signUpDto: SignUpDto): Promise<{ readonly accessToken: string }> {
     return await this.authService.signUp(signUpDto);
   }
 
+  @Public()
   @Post('login')
   @HttpCode(200)
   async logIn(@Body() logInDto: LogInDto): Promise<{ readonly accessToken: string }> {
     return await this.authService.logIn(logInDto);
   }
 
-  @UseGuards(AuthGuard)
   @Get()
-  async getUser(@Request() { payload }): Promise<User> {
-    return await this.usersService.findOne(payload.sub);
+  async getUser(@UserId() userId: string): Promise<User> {
+    return await this.usersService.findOne(userId);
   }
 
-  @UseGuards(AuthGuard)
   @Patch()
-  async update(@Request() { payload }, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return await this.usersService.update(payload.sub, updateUserDto);
+  async update(@UserId() userId: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    return await this.usersService.update(userId, updateUserDto);
   }
 
-  @UseGuards(AuthGuard)
   @Patch('email')
-  async updateEmail(@Request() { payload }, @Body() updateEmailDto: UpdateEmailDto): Promise<User> {
-    return await this.usersService.updateEmail(payload.sub, updateEmailDto);
+  async updateEmail(@UserId() userId: string, @Body() updateEmailDto: UpdateEmailDto): Promise<User> {
+    return await this.usersService.updateEmail(userId, updateEmailDto);
   }
 
-  @UseGuards(AuthGuard)
   @Patch('password')
-  async updatePassword(@Request() { payload }, @Body() updatePasswordDto: UpdatePasswordDto): Promise<User> {
-    return await this.usersService.updatePassword(payload.sub, updatePasswordDto);
+  async updatePassword(@UserId() userId: string, @Body() updatePasswordDto: UpdatePasswordDto): Promise<User> {
+    return await this.usersService.updatePassword(userId, updatePasswordDto);
   }
 
-  @UseGuards(AuthGuard)
   @Delete()
-  async remove(@Request() { payload }): Promise<User> {
-    return await this.usersService.remove(payload.sub);
+  async remove(@UserId() userId: string): Promise<User> {
+    return await this.usersService.remove(userId);
   }
 }

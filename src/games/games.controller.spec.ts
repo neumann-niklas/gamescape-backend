@@ -1,5 +1,7 @@
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { mockGames } from 'test/mocks/game.mock';
+import { mockUsers } from 'test/mocks/user.mock';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -11,17 +13,21 @@ describe('GamesController', () => {
   let gamesService: GamesService;
 
   beforeEach(async () => {
+    const mockJwtService: Partial<JwtService> = {};
     const mockGamesService: Partial<GamesService> = {
-      create: jest.fn().mockImplementation((createGameDto: CreateGameDto) => { return { id: '0', ...createGameDto } }),
+      create: jest.fn().mockImplementation((authorId: string, createGameDto: CreateGameDto) => { return { id: '0', ...createGameDto, author: { id: authorId } } }),
       findAll: jest.fn().mockResolvedValue(mockGames),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockGames.find((game: Game) => game.id === id) || null)),
-      update: jest.fn().mockImplementation((id: string, updateGameDto: UpdateGameDto) => Promise.resolve({ ...mockGames.find((game: Game) => game.id === id), ...updateGameDto })),
-      remove: jest.fn().mockImplementation((id: string) => Promise.resolve(mockGames.find((game: Game) => game.id === id) || null))
+      update: jest.fn().mockImplementation((_, id: string, updateGameDto: UpdateGameDto) => Promise.resolve({ ...mockGames.find((game: Game) => game.id === id), ...updateGameDto })),
+      remove: jest.fn().mockImplementation((_, id: string) => Promise.resolve(mockGames.find((game: Game) => game.id === id) || null))
     };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [GamesController],
-      providers: [{ provide: GamesService, useValue: mockGamesService }]
+      providers: [
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: GamesService, useValue: mockGamesService }
+      ]
     }).compile();
 
     gamesController = module.get<GamesController>(GamesController);
@@ -32,10 +38,10 @@ describe('GamesController', () => {
     it('should create a new game', async () => {
       const createGameDto: CreateGameDto = { title: 'Foo' };
 
-      const game: Game = await gamesController.create(createGameDto);
+      const game: Game = await gamesController.create(mockUsers[0].id, createGameDto);
 
-      expect(gamesService.create).toHaveBeenCalledWith(createGameDto);
-      expect(game).toEqual({ id: '0', ...createGameDto });
+      expect(gamesService.create).toHaveBeenCalledWith(mockUsers[0].id, createGameDto);
+      expect(game).toEqual({ id: '0', ...createGameDto, author: { id: mockUsers[0].id } });
     });
   });
 
@@ -61,18 +67,18 @@ describe('GamesController', () => {
     it('should update a game by id', async () => {
       const updateGameDto: UpdateGameDto = { title: 'Foo' };
 
-      const game: Game = await gamesController.update(mockGames[0].id, updateGameDto);
+      const game: Game = await gamesController.update(mockUsers[0].id, mockGames[0].id, updateGameDto);
 
-      expect(gamesService.update).toHaveBeenCalledWith(mockGames[0].id, updateGameDto);
+      expect(gamesService.update).toHaveBeenCalledWith(mockUsers[0].id, mockGames[0].id, updateGameDto);
       expect(game).toEqual({ ...mockGames[0], ...updateGameDto });
     });
   });
 
   describe('remove', () => {
     it('should remove a game by id', async () => {
-      const game: Game = await gamesController.remove(mockGames[0].id);
+      const game: Game = await gamesController.remove(mockUsers[0].id, mockGames[0].id);
 
-      expect(gamesService.remove).toHaveBeenCalledWith(mockGames[0].id);
+      expect(gamesService.remove).toHaveBeenCalledWith(mockUsers[0].id, mockGames[0].id);
       expect(game).toEqual(mockGames[0]);
     });
   });

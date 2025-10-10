@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { UserId } from 'src/auth/decorators/user-id.decorator';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -9,27 +11,29 @@ export class GamesController {
   constructor(private readonly gamesService: GamesService) { }
 
   @Post()
-  async create(@Body() createGameDto: CreateGameDto): Promise<Game> {
-    return await this.gamesService.create(createGameDto);
+  async create(@UserId() authorId: string, @Body() createGameDto: CreateGameDto): Promise<Game> {
+    return await this.gamesService.create(authorId, createGameDto);
   }
 
+  @Public()
   @Get()
   async findAll(): Promise<Game[]> {
     return await this.gamesService.findAll();
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Game> {
     return await this.gamesService.findOne(id);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game> {
-    return await this.gamesService.update(id, updateGameDto);
+  async update(@UserId() authorId: string, @Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game> {
+    return await this.gamesService.update(authorId, id, updateGameDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Game> {
-    return await this.gamesService.remove(id);
+  async remove(@UserId() authorId: string, @Param('id') id: string): Promise<Game> {
+    return await this.gamesService.remove(authorId, id);
   }
 }

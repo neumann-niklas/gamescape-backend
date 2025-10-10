@@ -2,6 +2,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockGames } from 'test/mocks/game.mock';
+import { mockUsers } from 'test/mocks/user.mock';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
@@ -34,15 +35,15 @@ describe('GamesService', () => {
     it('should create a new game', async () => {
       const createGameDto: CreateGameDto = { title: 'Baz' };
 
-      const game: Game = await gamesService.create(createGameDto);
+      const game: Game = await gamesService.create(mockUsers[0].id, createGameDto);
 
-      expect(game).toEqual({ id: '0', ...createGameDto });
+      expect(game).toEqual({ id: '0', ...createGameDto, author: { id: mockUsers[0].id } });
     });
 
     it('should throw a ConflictException if game with title already exists', async () => {
       const createGameDto: CreateGameDto = { title: mockGames[0].title };
 
-      await expect(gamesService.create(createGameDto)).rejects.toThrow(ConflictException);
+      await expect(gamesService.create(mockUsers[0].id, createGameDto)).rejects.toThrow(ConflictException);
     });
   });
 
@@ -70,7 +71,7 @@ describe('GamesService', () => {
     const updateGameDto: UpdateGameDto = { title: 'Quux' };
 
     it('should update a game by id', async () => {
-      const game: Game = await gamesService.update(mockGames[0].id, updateGameDto);
+      const game: Game = await gamesService.update(mockUsers[0].id, mockGames[0].id, updateGameDto);
 
       expect(game).toEqual({ ...mockGames[0], ...updateGameDto });
     });
@@ -78,23 +79,23 @@ describe('GamesService', () => {
     it('should throw a ConflictException if game with title already exists', async () => {
       const updateGameDto: UpdateGameDto = { title: mockGames[0].title };
 
-      await expect(gamesService.update(mockGames[0].id, updateGameDto)).rejects.toThrow(ConflictException);
+      await expect(gamesService.update(mockUsers[0].id, mockGames[0].id, updateGameDto)).rejects.toThrow(ConflictException);
     });
 
     it('should throw a NotFoundException if no game is found', async () => {
-      await expect(gamesService.update('1', updateGameDto)).rejects.toThrow(NotFoundException);
+      await expect(gamesService.update(mockUsers[0].id, '1', updateGameDto)).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('remove', () => {
     it('should remove a game by id', async () => {
-      const game: Game = await gamesService.remove(mockGames[0].id);
+      const game: Game = await gamesService.remove(mockUsers[0].id, mockGames[0].id);
 
       expect(game).toEqual(mockGames[0]);
     });
 
     it('should throw a NotFoundException if no game is found', async () => {
-      await expect(gamesService.remove('1')).rejects.toThrow(NotFoundException);
+      await expect(gamesService.remove(mockUsers[0].id, '1')).rejects.toThrow(NotFoundException);
     });
   });
 });

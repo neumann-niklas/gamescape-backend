@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/users/entities/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Game {
@@ -7,4 +8,8 @@ export class Game {
 
     @Column({ unique: true })
     readonly title: string;
+
+    @ManyToOne(() => User, (user: User) => user.games)
+    @JoinColumn({ name: 'author_id' })
+    readonly author: User;
 }

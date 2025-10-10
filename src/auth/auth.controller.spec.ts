@@ -68,7 +68,7 @@ describe('AuthController', () => {
 
   describe('getUser', () => {
     it('should get the authenticated user', async () => {
-      const user: User = await authController.getUser({ payload: { sub: mockUsers[0].id } });
+      const user: User = await authController.getUser(mockUsers[0].id);
 
       expect(usersService.findOne).toHaveBeenCalledWith(mockUsers[0].id);
       expect(user).toEqual(mockUsers[0])
@@ -79,7 +79,7 @@ describe('AuthController', () => {
     it('should update an user by id', async () => {
       const updateUserDto: UpdateUserDto = { firstName: 'James' };
 
-      const user: User = await authController.update({ payload: { sub: mockUsers[0].id } }, updateUserDto);
+      const user: User = await authController.update(mockUsers[0].id, updateUserDto);
 
       expect(usersService.update).toHaveBeenCalledWith(mockUsers[0].id, updateUserDto);
       expect(user).toEqual({ ...mockUsers[0], ...updateUserDto });
@@ -90,7 +90,7 @@ describe('AuthController', () => {
     it('should update an user email by id', async () => {
       const updateEmailDto: UpdateEmailDto = { email: 'james.doe@gamescape.de' };
 
-      const user: User = await authController.updateEmail({ payload: { sub: mockUsers[0].id } }, updateEmailDto);
+      const user: User = await authController.updateEmail(mockUsers[0].id, updateEmailDto);
 
       expect(usersService.updateEmail).toHaveBeenCalledWith(mockUsers[0].id, updateEmailDto);
       expect(user).toEqual({ ...mockUsers[0], ...updateEmailDto });
@@ -101,7 +101,7 @@ describe('AuthController', () => {
     it('should update an user password by id', async () => {
       const updatePasswordDto: UpdatePasswordDto = { password: 'newPassword' };
 
-      const user: User = await authController.updatePassword({ payload: { sub: mockUsers[0].id } }, updatePasswordDto);
+      const user: User = await authController.updatePassword(mockUsers[0].id, updatePasswordDto);
 
       expect(usersService.updatePassword).toHaveBeenCalledWith(mockUsers[0].id, updatePasswordDto);
       expect(user).toEqual({ ...mockUsers[0], ...updatePasswordDto });
@@ -110,7 +110,7 @@ describe('AuthController', () => {
 
   describe('remove', () => {
     it('should remove an user by id', async () => {
-      const user: User = await authController.remove({ payload: { sub: mockUsers[0].id } });
+      const user: User = await authController.remove(mockUsers[0].id);
 
       expect(usersService.remove).toHaveBeenCalledWith(mockUsers[0].id);
       expect(user).toEqual(mockUsers[0]);
