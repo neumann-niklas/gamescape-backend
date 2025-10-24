@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { UserId } from 'src/auth/decorators/user-id.decorator';
 import { CreateGameDto } from './dto/create-game.dto';
@@ -23,17 +23,17 @@ export class GamesController {
 
   @Public()
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Game> {
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Game> {
     return await this.gamesService.findOne(id);
   }
 
   @Patch(':id')
-  async update(@UserId() authorId: string, @Param('id') id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game> {
+  async update(@UserId() authorId: string, @Param('id', ParseUUIDPipe) id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game> {
     return await this.gamesService.update(authorId, id, updateGameDto);
   }
 
   @Delete(':id')
-  async remove(@UserId() authorId: string, @Param('id') id: string): Promise<Game> {
+  async remove(@UserId() authorId: string, @Param('id', ParseUUIDPipe) id: string): Promise<Game> {
     return await this.gamesService.remove(authorId, id);
   }
 }

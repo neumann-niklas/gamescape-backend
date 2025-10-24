@@ -29,7 +29,7 @@ export class GamesService {
   }
 
   async update(authorId: string, id: string, updateGameDto: UpdateGameDto): Promise<Game> {
-    if (await this.gamesRepository.existsBy({ title: updateGameDto.title })) throw new ConflictException('Game with this title already exists!');
+    if (updateGameDto.title) if (await this.gamesRepository.existsBy({ title: updateGameDto.title })) throw new ConflictException('Game with this title already exists!');
 
     const game: Game | null = await this.gamesRepository.findOne({ where: { id: id }, relations: { author: true } });
 
