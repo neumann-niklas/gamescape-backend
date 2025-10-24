@@ -17,11 +17,11 @@ export class GamesService {
   }
 
   async findAll(): Promise<Game[]> {
-    return await this.gamesRepository.find({ relations: { author: true } });
+    return await this.gamesRepository.find({ relations: { author: true, categories: true } });
   }
 
   async findOne(id: string): Promise<Game> {
-    const game: Game | null = await this.gamesRepository.findOne({ where: { id: id }, relations: { author: true } });
+    const game: Game | null = await this.gamesRepository.findOne({ where: { id: id }, relations: { author: true, categories: true } });
 
     if (!game) throw new NotFoundException();
 
@@ -31,7 +31,7 @@ export class GamesService {
   async update(authorId: string, id: string, updateGameDto: UpdateGameDto): Promise<Game> {
     if (updateGameDto.title) if (await this.gamesRepository.existsBy({ title: updateGameDto.title })) throw new ConflictException('Game with this title already exists!');
 
-    const game: Game | null = await this.gamesRepository.findOne({ where: { id: id }, relations: { author: true } });
+    const game: Game | null = await this.gamesRepository.findOne({ where: { id: id }, relations: { author: true, categories: true } });
 
     if (!game) throw new NotFoundException();
     if (game.author.id !== authorId) throw new ForbiddenException();

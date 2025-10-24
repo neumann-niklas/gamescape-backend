@@ -1,5 +1,6 @@
+import { Category } from "src/categories/entities/category.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { GroupPhase } from "../enums/group-phase.enum";
 
 @Entity()
@@ -22,4 +23,12 @@ export class Game {
 
     @CreateDateColumn({ name: 'update_date' })
     readonly updateDate: Date;
+
+    @ManyToMany(() => Category)
+    @JoinTable({
+        name: 'game_category',
+        joinColumn: { name: 'game_id' },
+        inverseJoinColumn: { name: 'category_id' }
+    })
+    categories: Category[];
 }
