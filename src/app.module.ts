@@ -4,7 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppRoutingModule } from './app-routing.module';
-import { AuthGuard } from './auth/guards/auth.guard';
+import { AuthenticationGuard } from './auth/guards/authentication.guard';
 import { JwtConfigService } from './config/jwt-config.service';
 import { TypeOrmConfigService } from './config/typeorm-config.service';
 
@@ -15,6 +15,6 @@ import { TypeOrmConfigService } from './config/typeorm-config.service';
         TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
         AppRoutingModule
     ],
-    providers: [{ provide: APP_GUARD, useClass: AuthGuard }]
+    providers: [{ provide: APP_GUARD, useClass: AuthenticationGuard }]
 })
 export class AppModule { }

@@ -19,7 +19,7 @@ export class AuthService {
       password: await hash(signUpDto.password, await genSalt())
     });
 
-    return { accessToken: await this.jwtService.signAsync({ sub: user.id }) };
+    return { accessToken: await this.jwtService.signAsync({ sub: user.id, role: user.role }) };
   }
 
   async logIn(logInDto: LogInDto): Promise<{ readonly accessToken: string }> {
@@ -27,6 +27,6 @@ export class AuthService {
 
     if (!await compare(logInDto.password, user.password)) throw new UnauthorizedException('Invalid password!');
 
-    return { accessToken: await this.jwtService.signAsync({ sub: user.id }) };
+    return { accessToken: await this.jwtService.signAsync({ sub: user.id, role: user.role }) };
   }
 }
