@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Game } from "src/games/entities/game.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Category {
@@ -7,4 +8,7 @@ export class Category {
 
     @Column({ unique: true })
     readonly name: string;
+
+    @OneToMany(() => Game, (game: Game) => game.category)
+    readonly games: Game[];
 }

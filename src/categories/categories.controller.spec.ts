@@ -12,7 +12,7 @@ describe('CategoriesController', () => {
 
   beforeEach(async () => {
     const mockCategoriesService: Partial<CategoriesService> = {
-      create: jest.fn().mockImplementation((createCategoryDto: CreateCategoryDto) => Promise.resolve({ id: mockCategories[0].id, ...createCategoryDto })),
+      create: jest.fn().mockImplementation((createCategoryDto: CreateCategoryDto) => Promise.resolve({ id: mockCategories[0].id, ...createCategoryDto, games: [] })),
       findAll: jest.fn().mockResolvedValue(mockCategories),
       findOne: jest.fn().mockImplementation((id: string) => Promise.resolve(mockCategories.find((category: Category) => category.id === id) || null)),
       update: jest.fn().mockImplementation((id: string, updateCategoryDto: UpdateCategoryDto) => Promise.resolve({ ...mockCategories.find((category: Category) => category.id === id), ...updateCategoryDto })),
