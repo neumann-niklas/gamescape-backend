@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { UserId } from 'src/auth/decorators/user-id.decorator';
 import { CreateGameDto } from './dto/create-game.dto';
+import { QueryGameDto } from './dto/query-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
 import { GamesService } from './games.service';
@@ -17,8 +18,8 @@ export class GamesController {
 
   @Public()
   @Get()
-  async findAll(): Promise<Game[]> {
-    return await this.gamesService.findAll();
+  async findAll(@Query() queryGameDto: QueryGameDto): Promise<Game[]> {
+    return await this.gamesService.findAll(queryGameDto);
   }
 
   @Public()

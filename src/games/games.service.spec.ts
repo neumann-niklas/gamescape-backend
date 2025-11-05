@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockGames } from 'test/mocks/game.mock';
 import { mockUsers } from 'test/mocks/user.mock';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -14,12 +14,23 @@ describe('GamesService', () => {
   let gamesRepository: Repository<Game>;
 
   beforeEach(async () => {
+    const createQueryBuilderMock = () => {
+      const selectQueryBuilder: Partial<SelectQueryBuilder<Game>> = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockReturnValue(mockGames)
+      };
+
+      return selectQueryBuilder;
+    };
+
     const mockGamesRepository: Partial<Repository<Game>> = {
+      createQueryBuilder: jest.fn().mockReturnValue(createQueryBuilderMock()),
       create: jest.fn().mockImplementation((createGameDto: CreateGameDto) => { return { id: '0', ...createGameDto } }),
       save: jest.fn().mockImplementation((game: Game) => Promise.resolve(game)),
       remove: jest.fn().mockImplementation((game: Game) => Promise.resolve(game)),
       existsBy: jest.fn().mockImplementation(({ title }) => Promise.resolve(mockGames.some((game: Game) => game.title === title))),
-      find: jest.fn().mockResolvedValue(mockGames),
       findOne: jest.fn().mockImplementation(({ where: { id: id } }) => Promise.resolve(mockGames.find((game: Game) => game.id === id) || null))
     };
 
@@ -29,6 +40,8 @@ describe('GamesService', () => {
 
     gamesService = module.get<GamesService>(GamesService);
     gamesRepository = module.get<Repository<Game>>(getRepositoryToken(Game));
+
+    (gamesRepository as any).queryBuilder = createQueryBuilderMock();
   });
 
   describe('create', () => {
@@ -49,7 +62,7 @@ describe('GamesService', () => {
 
   describe('findAll', () => {
     it('should return an array of games', async () => {
-      const games: Game[] = await gamesService.findAll();
+      const games: Game[] = await gamesService.findAll({});
 
       expect(games).toEqual(mockGames);
     });
