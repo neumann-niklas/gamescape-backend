@@ -47,7 +47,7 @@ describe('GamesController', () => {
 
   describe('findAll', () => {
     it('should return an array of games', async () => {
-      const games: Game[] = await gamesController.findAll();
+      const games: Game[] = await gamesController.findAll({});
 
       expect(gamesService.findAll).toHaveBeenCalled();
       expect(games).toEqual(mockGames);

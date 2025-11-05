@@ -1,8 +1,9 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
+import { QueryGameDto } from './dto/query-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
 
@@ -16,8 +17,18 @@ export class GamesService {
     return await this.gamesRepository.save(this.gamesRepository.create({ ...createGameDto, author: { id: authorId } }));
   }
 
-  async findAll(): Promise<Game[]> {
-    return await this.gamesRepository.find({ relations: { author: true, category: true } });
+  async findAll(queryGameDto?: QueryGameDto): Promise<Game[]> {
+    const query: SelectQueryBuilder<Game> = this.gamesRepository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.author', 'author')
+      .leftJoinAndSelect('game.category', 'category');
+
+    if (queryGameDto?.search) query.andWhere('(LOWER(game.title) LIKE LOWER(:search))', { search: `%${queryGameDto.search}%` });
+    if (queryGameDto?.groupPhase) query.andWhere('game.groupPhase = :groupPhase', { groupPhase: queryGameDto.groupPhase });
+    if (queryGameDto?.categoryId) query.andWhere('category.id = :categoryId', { categoryId: queryGameDto.categoryId });
+    if (queryGameDto?.sortBy) query.orderBy(`game.${queryGameDto.sortBy}`, queryGameDto.sortOrder || 'ASC');
+
+    return await query.getMany();
   }
 
   async findOne(id: string): Promise<Game> {
